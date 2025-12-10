@@ -1,69 +1,81 @@
-# 🎮 Pokémon 3D Explorer
+# 🎮 Pokédex 3D - Gen 1
 
-Um jogo web interativo em 3D para visualizar Pokémon da primeira geração!
+Uma Pokédex interativa e moderna com visual realista de Pokémon da primeira geração!
 
-## 🚀 Como Jogar
+## 🚀 Como Usar
 
 Basta abrir o arquivo `index.html` no seu navegador! Nenhuma instalação necessária.
 
 ## 🎯 Funcionalidades
 
-### Interatividade 3D
-- **🖱️ Rotação**: Clique e arraste para rotacionar o Pokémon em 3D
-- **📱 Zoom**: Use o scroll do mouse ou os botões +/- para aproximar/afastar
-- **👆 Touch**: Compatível com dispositivos móveis - toque e arraste para rotacionar
+### Design Moderno de Pokédex
+- Visual realista inspirado na Pokédex clássica
+- Interface dividida em dois painéis (como uma Pokédex real)
+- Efeitos de luz, sombras e animações 3D
+- Design responsivo para desktop e mobile
 
-### Controles
-- **🔄 Auto Rotação**: Liga/desliga a rotação automática do modelo
-- **➕ Zoom In**: Aproxima a visualização
-- **➖ Zoom Out**: Afasta a visualização
-- **🎯 Reset**: Retorna para a posição inicial
-- **🔴 Capturar**: Ativa efeito visual de captura com sparkles
-- **⚔️ Batalha**: Ativa modo de batalha com animação especial
+### Visualização de Pokémon
+- **Sprites animados** dos jogos Black/White quando disponíveis
+- **Artwork oficial** como fallback
+- **Efeito de rotação 3D** ao arrastar a imagem
+- **Animação de flutuação** suave
 
-### Galeria de Pokémon
-Selecione entre 17 Pokémon populares da primeira geração:
-- Starters: Bulbasaur, Charmander, Squirtle
-- Evoluções: Venusaur, Charizard, Blastoise
-- Icônicos: Pikachu, Eevee
-- Lendários: Mewtwo, Mew, Articuno, Zapdos, Moltres
-- Outros: Gengar, Lapras, Snorlax, Dragonite
+### Informações Completas
+- Número e nome do Pokémon
+- Tipos com cores oficiais
+- Descrição da Pokédex
+- Altura e peso
+- Status base completos (HP, ATK, DEF, SP.A, SP.D, SPD)
+- **Som do grito** do Pokémon
 
-## 🛠️ Tecnologias Utilizadas
+### Navegação
+- **Grid visual** com todos os 151 Pokémon da Gen 1
+- Botões de navegação ◀ ▶
+- **D-Pad** estilo Game Boy
+- Suporte a **teclado** (setas)
 
-- **CSS3 3D Transforms**: Efeitos de rotação e perspectiva 3D
-- **CSS3 Animations**: Animações de flutuação, partículas e transições
-- **JavaScript ES6+**: Lógica do jogo e interatividade
+## 🛠️ Tecnologias
 
-## 📱 Responsivo
+- **HTML5/CSS3**: Interface moderna com efeitos 3D
+- **JavaScript ES6+**: Lógica assíncrona e interatividade
+- **PokéAPI**: Dados oficiais de Pokémon (sprites, stats, descrições)
+- **Google Fonts**: Tipografia futurista (Orbitron, Rajdhani)
 
-O jogo é totalmente responsivo e funciona em:
-- 💻 Desktop
-- 📱 Smartphones
-- 📟 Tablets
+## 📱 Controles
+
+| Ação | Desktop | Mobile |
+|------|---------|--------|
+| Navegar | ← → ↑ ↓ ou botões | Toque nos botões |
+| Rotacionar 3D | Arrastar imagem | Arrastar imagem |
+| Selecionar | Click no grid | Toque no grid |
+| Ouvir grito | Botão PLAY CRY | Botão PLAY CRY |
 
 ## 🎨 Características Visuais
 
-- Representação estilizada dos Pokémon com emojis animados
-- Partículas flutuantes douradas
-- Plataforma 3D com anel brilhante
-- Efeitos de brilho e sparkle
-- Animação de flutuação dos modelos
-- Fundo estrelado com efeito twinkle
-- Interface moderna com blur backdrop
+- Efeito de luz pulsante (LED azul)
+- LEDs indicadores (vermelho, amarelo, verde)
+- Tela com gradiente estilo LCD
+- Barras de status coloridas
+- Badges de tipo com gradientes
+- Efeitos de hover e transições suaves
+- Animação de carregamento (Pokébola girando)
 
 ## 📂 Estrutura
 
 ```
 game/
-├── index.html      # Jogo principal (tudo em um arquivo)
+├── index.html      # Pokédex completa (arquivo único)
 └── README.md       # Este arquivo
 ```
 
-## 🔗 Relacionado aos Assets 3D
+## 🔗 API
 
-Este jogo complementa os modelos 3D em `Pokemon-Gen1/` na raiz do repositório, oferecendo uma forma interativa de visualizar informações sobre os Pokémon. Os assets FBX do repositório podem ser usados em engines 3D como Unity ou Blender.
+Este projeto utiliza a [PokéAPI](https://pokeapi.co/) para obter:
+- Sprites e artwork oficiais
+- Dados de tipos e estatísticas
+- Descrições da Pokédex
+- Sons dos Pokémon (cries)
 
 ## 🎮 Aproveite!
 
-Divirta-se explorando os Pokémon em 3D! ⚡
+Explore todos os 151 Pokémon da primeira geração! ⚡

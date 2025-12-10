@@ -4,39 +4,22 @@ Um jogo web interativo em 3D para visualizar Pokémon da primeira geração!
 
 ## 🚀 Como Jogar
 
-### Opção 1: Abrir Diretamente
-Basta abrir o arquivo `index.html` no seu navegador!
-
-### Opção 2: Servidor Local (Recomendado para carregar modelos FBX)
-Para carregar os modelos FBX originais, use um servidor web local:
-
-```bash
-# Com Python 3
-cd game
-python -m http.server 8000
-
-# Ou com Node.js
-npx http-server
-
-# Ou com PHP
-php -S localhost:8000
-```
-
-Depois acesse: `http://localhost:8000`
+Basta abrir o arquivo `index.html` no seu navegador! Nenhuma instalação necessária.
 
 ## 🎯 Funcionalidades
 
 ### Interatividade 3D
-- **🖱️ Rotação**: Clique e arraste para rotacionar a câmera ao redor do Pokémon
+- **🖱️ Rotação**: Clique e arraste para rotacionar o Pokémon em 3D
 - **📱 Zoom**: Use o scroll do mouse ou os botões +/- para aproximar/afastar
-- **👆 Touch**: Compatível com dispositivos móveis - toque e arraste para rotacionar, pinça para zoom
+- **👆 Touch**: Compatível com dispositivos móveis - toque e arraste para rotacionar
 
 ### Controles
 - **🔄 Auto Rotação**: Liga/desliga a rotação automática do modelo
-- **➕ Zoom In**: Aproxima a câmera
-- **➖ Zoom Out**: Afasta a câmera
-- **🎯 Reset**: Retorna a câmera para a posição inicial
-- **💡 Iluminação**: Alterna entre 3 modos de iluminação (Normal, Dramático, Brilhante)
+- **➕ Zoom In**: Aproxima a visualização
+- **➖ Zoom Out**: Afasta a visualização
+- **🎯 Reset**: Retorna para a posição inicial
+- **🔴 Capturar**: Ativa efeito visual de captura com sparkles
+- **⚔️ Batalha**: Ativa modo de batalha com animação especial
 
 ### Galeria de Pokémon
 Selecione entre 17 Pokémon populares da primeira geração:
@@ -48,10 +31,9 @@ Selecione entre 17 Pokémon populares da primeira geração:
 
 ## 🛠️ Tecnologias Utilizadas
 
-- **Three.js**: Motor 3D para renderização WebGL
-- **OrbitControls**: Controles de câmera orbital
-- **CSS3**: Animações e efeitos visuais
-- **JavaScript ES6+**: Lógica do jogo
+- **CSS3 3D Transforms**: Efeitos de rotação e perspectiva 3D
+- **CSS3 Animations**: Animações de flutuação, partículas e transições
+- **JavaScript ES6+**: Lógica do jogo e interatividade
 
 ## 📱 Responsivo
 
@@ -62,11 +44,12 @@ O jogo é totalmente responsivo e funciona em:
 
 ## 🎨 Características Visuais
 
+- Representação estilizada dos Pokémon com emojis animados
 - Partículas flutuantes douradas
 - Plataforma 3D com anel brilhante
 - Efeitos de brilho e sparkle
 - Animação de flutuação dos modelos
-- Sistema de iluminação com sombras
+- Fundo estrelado com efeito twinkle
 - Interface moderna com blur backdrop
 
 ## 📂 Estrutura
@@ -77,13 +60,9 @@ game/
 └── README.md       # Este arquivo
 ```
 
-## 🔗 Assets 3D
+## 🔗 Relacionado aos Assets 3D
 
-Os modelos 3D estão localizados em `Pokemon-Gen1/` na raiz do repositório.
-Cada Pokémon tem sua própria pasta com:
-- Modelo `.fbx`
-- Texturas em `tex/`
-- Arquivos fonte em `source/`
+Este jogo complementa os modelos 3D em `Pokemon-Gen1/` na raiz do repositório, oferecendo uma forma interativa de visualizar informações sobre os Pokémon. Os assets FBX do repositório podem ser usados em engines 3D como Unity ou Blender.
 
 ## 🎮 Aproveite!
 

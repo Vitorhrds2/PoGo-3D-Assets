@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokémon 3D Explorer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            overflow: hidden;
+            color: white;
+        }
+
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 0.5s ease;
+        }
+
+        #loading-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .pokeball-loader {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(to bottom, #ff0000 0%, #ff0000 45%, #1a1a2e 45%, #1a1a2e 55%, #ffffff 55%, #ffffff 100%);
+            position: relative;
+            animation: bounce 1s ease-in-out infinite;
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.5);
+        }
+
+        .pokeball-loader::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: white;
+            border: 5px solid #1a1a2e;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        #loading-text {
+            margin-top: 30px;
+            font-size: 1.5rem;
+            color: #ffd700;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        #container {
+            width: 100%;
+            height: 100vh;
+            position: relative;
+        }
+
+        /* 3D Scene Container */
+        #scene-container {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            perspective: 1000px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        /* Ground Platform */
+        #platform {
+            position: absolute;
+            bottom: 20%;
+            width: 300px;
+            height: 20px;
+            background: linear-gradient(90deg, #2a2a4a 0%, #3a3a6a 50%, #2a2a4a 100%);
+            border-radius: 50%;
+            transform: rotateX(60deg);
+            box-shadow: 0 30px 50px rgba(0, 0, 0, 0.5),
+                        0 0 40px rgba(255, 215, 0, 0.3);
+            border: 2px solid rgba(255, 215, 0, 0.4);
+        }
+
+        #platform::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: radial-gradient(ellipse, rgba(255, 215, 0, 0.2) 0%, transparent 70%);
+        }
+
+        /* 3D Pokémon Model */
+        #pokemon-3d {
+            position: absolute;
+            bottom: 25%;
+            transform-style: preserve-3d;
+            cursor: grab;
+            transition: transform 0.1s ease-out;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        #pokemon-3d:active {
+            cursor: grabbing;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        .pokemon-model {
+            font-size: 150px;
+            transform-style: preserve-3d;
+            filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.5));
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            0% { filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.5)); }
+            100% { filter: drop-shadow(0 10px 40px rgba(255, 215, 0, 0.4)); }
+        }
+
+        /* Particles */
+        .particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: radial-gradient(circle, #ffd700 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: particle-float 4s ease-in-out infinite;
+        }
+
+        @keyframes particle-float {
+            0%, 100% { transform: translateY(0) scale(1); opacity: 0.6; }
+            50% { transform: translateY(-30px) scale(1.5); opacity: 1; }
+        }
+
+        /* Stars background */
+        .star {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 2s ease-in-out infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        /* UI Header */
+        #header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 20px 30px;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, transparent 100%);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+        }
+
+        #title {
+            font-size: 2rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #ffd700, #ffec8b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: none;
+            filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.3));
+        }
+
+        #controls-hint {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Pokémon Info Panel */
+        #pokemon-info {
+            position: absolute;
+            top: 100px;
+            right: 30px;
+            width: 280px;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            z-index: 100;
+            transform: translateX(0);
+            transition: transform 0.3s ease;
+        }
+
+        #pokemon-name {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #ffd700;
+            margin-bottom: 5px;
+        }
+
+        #pokemon-number {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 15px;
+        }
+
+        .type-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-right: 5px;
+            margin-bottom: 10px;
+        }
+
+        .type-grass { background: linear-gradient(135deg, #78c850, #5ca935); }
+        .type-poison { background: linear-gradient(135deg, #a040a0, #803380); }
+        .type-fire { background: linear-gradient(135deg, #f08030, #c25010); }
+        .type-water { background: linear-gradient(135deg, #6890f0, #4870d0); }
+        .type-electric { background: linear-gradient(135deg, #f8d030, #d8b010); color: #333; }
+        .type-normal { background: linear-gradient(135deg, #a8a878, #888858); }
+        .type-psychic { background: linear-gradient(135deg, #f85888, #d83868); }
+        .type-flying { background: linear-gradient(135deg, #a890f0, #8870d0); }
+        .type-dragon { background: linear-gradient(135deg, #7038f8, #5018d8); }
+        .type-ice { background: linear-gradient(135deg, #98d8d8, #78b8b8); color: #333; }
+        .type-fighting { background: linear-gradient(135deg, #c03028, #a01008); }
+        .type-rock { background: linear-gradient(135deg, #b8a038, #988018); }
+        .type-ground { background: linear-gradient(135deg, #e0c068, #c0a048); color: #333; }
+        .type-bug { background: linear-gradient(135deg, #a8b820, #889800); }
+        .type-ghost { background: linear-gradient(135deg, #705898, #504078); }
+        .type-fairy { background: linear-gradient(135deg, #ee99ac, #ce798c); }
+
+        #pokemon-description {
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 15px;
+        }
+
+        /* Stats Section */
+        #pokemon-stats {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .stat-bar {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            width: 60px;
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .stat-track {
+            flex: 1;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .stat-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .stat-hp { background: linear-gradient(90deg, #ff5555, #ff7777); }
+        .stat-atk { background: linear-gradient(90deg, #f08030, #ffaa55); }
+        .stat-def { background: linear-gradient(90deg, #6890f0, #88b0ff); }
+        .stat-spd { background: linear-gradient(90deg, #f8d030, #ffee77); }
+
+        /* Pokémon Selector */
+        #pokemon-selector {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 20px;
+            background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%);
+            z-index: 100;
+        }
+
+        #selector-title {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        #pokemon-gallery {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            padding: 10px 0;
+            scrollbar-width: thin;
+            scrollbar-color: #ffd700 transparent;
+        }
+
+        #pokemon-gallery::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        #pokemon-gallery::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        #pokemon-gallery::-webkit-scrollbar-thumb {
+            background: #ffd700;
+            border-radius: 4px;
+        }
+
+        .pokemon-card {
+            flex-shrink: 0;
+            width: 90px;
+            height: 90px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .pokemon-card:hover {
+            transform: translateY(-10px) scale(1.1);
+            background: rgba(255, 215, 0, 0.2);
+            border-color: #ffd700;
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.3);
+        }
+
+        .pokemon-card.active {
+            background: rgba(255, 215, 0, 0.3);
+            border-color: #ffd700;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+
+        .pokemon-card-icon {
+            font-size: 2rem;
+            margin-bottom: 5px;
+        }
+
+        .pokemon-card-name {
+            font-size: 0.7rem;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        /* Action Buttons */
+        #action-buttons {
+            position: absolute;
+            left: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 100;
+        }
+
+        .action-btn {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            color: white;
+            font-size: 1.3rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 215, 0, 0.3);
+            border-color: #ffd700;
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+        }
+
+        .action-btn.active {
+            background: rgba(255, 215, 0, 0.5);
+            border-color: #ffd700;
+        }
+
+        /* Special Effects */
+        .catch-effect {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.8) 0%, transparent 70%);
+            animation: catch-burst 0.8s ease-out forwards;
+            pointer-events: none;
+            z-index: 200;
+        }
+
+        @keyframes catch-burst {
+            0% { transform: translate(-50%, -50%) scale(0); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(3); opacity: 0; }
+        }
+
+        .sparkle {
+            position: fixed;
+            pointer-events: none;
+            width: 10px;
+            height: 10px;
+            background: radial-gradient(circle, #ffd700 0%, transparent 70%);
+            border-radius: 50%;
+            animation: sparkle 1s ease-out forwards;
+            z-index: 150;
+        }
+
+        @keyframes sparkle {
+            0% { transform: scale(0) rotate(0deg); opacity: 1; }
+            100% { transform: scale(2) rotate(180deg); opacity: 0; }
+        }
+
+        /* Battle Mode */
+        .battle-mode #pokemon-3d {
+            animation: float 3s ease-in-out infinite, battle-shake 0.5s ease-in-out infinite;
+        }
+
+        @keyframes battle-shake {
+            0%, 100% { transform: translateX(0) translateY(0); }
+            25% { transform: translateX(-5px) translateY(-5px); }
+            75% { transform: translateX(5px) translateY(-5px); }
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            #title {
+                font-size: 1.3rem;
+            }
+
+            #controls-hint {
+                display: none;
+            }
+
+            #pokemon-info {
+                position: fixed;
+                top: auto;
+                bottom: 150px;
+                right: 10px;
+                left: 10px;
+                width: auto;
+                padding: 15px;
+            }
+
+            #action-buttons {
+                left: 10px;
+                top: auto;
+                bottom: 160px;
+                transform: none;
+                flex-direction: row;
+            }
+
+            .action-btn {
+                width: 45px;
+                height: 45px;
+                font-size: 1.1rem;
+            }
+
+            .pokemon-card {
+                width: 75px;
+                height: 75px;
+            }
+
+            .pokemon-model {
+                font-size: 100px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loading-screen">
+        <div class="pokeball-loader"></div>
+        <div id="loading-text">Carregando Pokémon...</div>
+    </div>
+
+    <!-- Main Container -->
+    <div id="container">
+        <!-- 3D Scene -->
+        <div id="scene-container">
+            <div id="platform"></div>
+            <div id="pokemon-3d">
+                <div class="pokemon-model">⚡</div>
+            </div>
+        </div>
+
+        <!-- Header -->
+        <div id="header">
+            <h1 id="title">🎮 Pokémon 3D Explorer</h1>
+            <span id="controls-hint">🖱️ Arraste para rotacionar em 3D | Scroll para zoom</span>
+        </div>
+
+        <!-- Pokémon Info Panel -->
+        <div id="pokemon-info">
+            <div id="pokemon-name">Pikachu</div>
+            <div id="pokemon-number">#025</div>
+            <div id="pokemon-types">
+                <span class="type-badge type-electric">Electric</span>
+            </div>
+            <p id="pokemon-description">O icônico Pokémon elétrico! Pikachu armazena eletricidade em suas bochechas e libera poderosos raios quando ameaçado.</p>
+            <div id="pokemon-stats">
+                <div class="stat-bar">
+                    <span class="stat-label">HP</span>
+                    <div class="stat-track"><div class="stat-fill stat-hp" id="stat-hp"></div></div>
+                </div>
+                <div class="stat-bar">
+                    <span class="stat-label">ATK</span>
+                    <div class="stat-track"><div class="stat-fill stat-atk" id="stat-atk"></div></div>
+                </div>
+                <div class="stat-bar">
+                    <span class="stat-label">DEF</span>
+                    <div class="stat-track"><div class="stat-fill stat-def" id="stat-def"></div></div>
+                </div>
+                <div class="stat-bar">
+                    <span class="stat-label">SPD</span>
+                    <div class="stat-track"><div class="stat-fill stat-spd" id="stat-spd"></div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div id="action-buttons">
+            <button class="action-btn active" id="btn-rotate" title="Auto Rotação">🔄</button>
+            <button class="action-btn" id="btn-zoom-in" title="Zoom In">➕</button>
+            <button class="action-btn" id="btn-zoom-out" title="Zoom Out">➖</button>
+            <button class="action-btn" id="btn-reset" title="Resetar Câmera">🎯</button>
+            <button class="action-btn" id="btn-catch" title="Capturar!">🔴</button>
+            <button class="action-btn" id="btn-battle" title="Modo Batalha">⚔️</button>
+        </div>
+
+        <!-- Pokémon Selector -->
+        <div id="pokemon-selector">
+            <div id="selector-title">🏆 Selecione um Pokémon para explorar em 3D</div>
+            <div id="pokemon-gallery"></div>
+        </div>
+    </div>
+
+    <script>
+        // Pokémon Data with stats
+        const pokemonData = [
+            { id: 1, name: "Bulbasaur", types: ["grass", "poison"], icon: "🌱", model: "🌿", description: "Um Pokémon estranho que carrega uma semente nas costas desde o nascimento. A semente cresce lentamente.", stats: { hp: 45, atk: 49, def: 49, spd: 45 } },
+            { id: 4, name: "Charmander", types: ["fire"], icon: "🔥", model: "🦎", description: "A chama na ponta de sua cauda indica suas emoções. Quando feliz, a chama queima mais forte.", stats: { hp: 39, atk: 52, def: 43, spd: 65 } },
+            { id: 7, name: "Squirtle", types: ["water"], icon: "💧", model: "🐢", description: "Depois de nascer, suas costas incham e endurecem, formando uma casca protetora.", stats: { hp: 44, atk: 48, def: 65, spd: 43 } },
+            { id: 25, name: "Pikachu", types: ["electric"], icon: "⚡", model: "⚡", description: "O icônico Pokémon elétrico! Armazena eletricidade em suas bochechas e libera poderosos raios.", stats: { hp: 35, atk: 55, def: 40, spd: 90 } },
+            { id: 133, name: "Eevee", types: ["normal"], icon: "🦊", model: "🦊", description: "Possui a capacidade de alterar sua composição celular para se adaptar ao ambiente ao redor.", stats: { hp: 55, atk: 55, def: 50, spd: 55 } },
+            { id: 150, name: "Mewtwo", types: ["psychic"], icon: "🔮", model: "👁️", description: "Criado por manipulação genética. Considerado o Pokémon mais forte do mundo.", stats: { hp: 106, atk: 110, def: 90, spd: 130 } },
+            { id: 149, name: "Dragonite", types: ["dragon", "flying"], icon: "🐉", model: "🐲", description: "Um Pokémon extremamente raro que vive no mar. Pode voar ao redor do globo em apenas 16 horas.", stats: { hp: 91, atk: 134, def: 95, spd: 80 } },
+            { id: 6, name: "Charizard", types: ["fire", "flying"], icon: "🔥", model: "🐉", description: "Voa pelo céu em busca de oponentes poderosos. Suas chamas podem derreter qualquer coisa.", stats: { hp: 78, atk: 84, def: 78, spd: 100 } },
+            { id: 9, name: "Blastoise", types: ["water"], icon: "🐢", model: "🐢", description: "Os jatos de água que dispara de seus canhões são poderosos o suficiente para perfurar aço.", stats: { hp: 79, atk: 83, def: 100, spd: 78 } },
+            { id: 3, name: "Venusaur", types: ["grass", "poison"], icon: "🌸", model: "🌺", description: "A flor em suas costas absorve luz solar e a transforma em energia.", stats: { hp: 80, atk: 82, def: 83, spd: 80 } },
+            { id: 94, name: "Gengar", types: ["ghost", "poison"], icon: "👻", model: "👻", description: "Esconde-se nas sombras para baixar a temperatura do ambiente em 5°C.", stats: { hp: 60, atk: 65, def: 60, spd: 110 } },
+            { id: 131, name: "Lapras", types: ["water", "ice"], icon: "🌊", model: "🦕", description: "Um Pokémon gentil que pode ler mentes. Adora transportar pessoas em suas costas.", stats: { hp: 130, atk: 85, def: 80, spd: 60 } },
+            { id: 143, name: "Snorlax", types: ["normal"], icon: "😴", model: "😴", description: "Extremamente preguiçoso, só acorda para comer. Necessita 400kg de comida por dia.", stats: { hp: 160, atk: 110, def: 65, spd: 30 } },
+            { id: 151, name: "Mew", types: ["psychic"], icon: "✨", model: "✨", description: "Contém os genes de todos os Pokémon. É capaz de aprender qualquer movimento.", stats: { hp: 100, atk: 100, def: 100, spd: 100 } },
+            { id: 144, name: "Articuno", types: ["ice", "flying"], icon: "❄️", model: "🦅", description: "O lendário pássaro de gelo. Aparece para pessoas perdidas em montanhas geladas.", stats: { hp: 90, atk: 85, def: 100, spd: 85 } },
+            { id: 145, name: "Zapdos", types: ["electric", "flying"], icon: "⚡", model: "🦅", description: "O lendário pássaro elétrico. Aparece durante tempestades para absorver raios.", stats: { hp: 90, atk: 90, def: 85, spd: 100 } },
+            { id: 146, name: "Moltres", types: ["fire", "flying"], icon: "🔥", model: "🦅", description: "O lendário pássaro de fogo. Diz-se que sua aparição traz a primavera mais cedo.", stats: { hp: 90, atk: 100, def: 90, spd: 90 } }
+        ];
+
+        // Game State
+        let currentPokemon = null;
+        let autoRotate = true;
+        let rotationY = 0;
+        let rotationX = 0;
+        let zoom = 1;
+        let isDragging = false;
+        let lastMouseX = 0;
+        let lastMouseY = 0;
+        let battleMode = false;
+
+        // DOM Elements
+        const pokemon3D = document.getElementById('pokemon-3d');
+        const pokemonModel = document.querySelector('.pokemon-model');
+        const sceneContainer = document.getElementById('scene-container');
+
+        // Initialize
+        function init() {
+            createStars();
+            createParticles();
+            createPokemonGallery();
+            setupEventListeners();
+            loadPokemon(pokemonData[3]); // Start with Pikachu
+            startAnimationLoop();
+            
+            // Hide loading screen
+            setTimeout(() => {
+                document.getElementById('loading-screen').classList.add('hidden');
+            }, 1000);
+        }
+
+        // Create starry background
+        function createStars() {
+            for (let i = 0; i < 50; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.top = `${Math.random() * 100}%`;
+                star.style.animationDelay = `${Math.random() * 2}s`;
+                sceneContainer.appendChild(star);
+            }
+        }
+
+        // Create floating particles
+        function createParticles() {
+            for (let i = 0; i < 15; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = `${30 + Math.random() * 40}%`;
+                particle.style.top = `${20 + Math.random() * 50}%`;
+                particle.style.animationDelay = `${Math.random() * 4}s`;
+                sceneContainer.appendChild(particle);
+            }
+        }
+
+        // Create Pokémon gallery
+        function createPokemonGallery() {
+            const gallery = document.getElementById('pokemon-gallery');
+            gallery.innerHTML = '';
+
+            pokemonData.forEach(pokemon => {
+                const card = document.createElement('div');
+                card.className = 'pokemon-card';
+                card.dataset.id = pokemon.id;
+
+                card.innerHTML = `
+                    <div class="pokemon-card-icon">${pokemon.icon}</div>
+                    <div class="pokemon-card-name">${pokemon.name}</div>
+                `;
+
+                card.addEventListener('click', () => loadPokemon(pokemon));
+                gallery.appendChild(card);
+            });
+        }
+
+        // Load Pokémon
+        function loadPokemon(pokemon) {
+            currentPokemon = pokemon;
+
+            // Update model
+            pokemonModel.textContent = pokemon.model;
+
+            // Update info panel
+            document.getElementById('pokemon-name').textContent = pokemon.name;
+            document.getElementById('pokemon-number').textContent = `#${String(pokemon.id).padStart(3, '0')}`;
+            document.getElementById('pokemon-description').textContent = pokemon.description;
+
+            // Update types
+            const typesContainer = document.getElementById('pokemon-types');
+            typesContainer.innerHTML = pokemon.types.map(type =>
+                `<span class="type-badge type-${type}">${type}</span>`
+            ).join('');
+
+            // Update stats with animation
+            const maxStat = 160;
+            setTimeout(() => {
+                document.getElementById('stat-hp').style.width = `${(pokemon.stats.hp / maxStat) * 100}%`;
+                document.getElementById('stat-atk').style.width = `${(pokemon.stats.atk / maxStat) * 100}%`;
+                document.getElementById('stat-def').style.width = `${(pokemon.stats.def / maxStat) * 100}%`;
+                document.getElementById('stat-spd').style.width = `${(pokemon.stats.spd / maxStat) * 100}%`;
+            }, 100);
+
+            // Update gallery active state
+            document.querySelectorAll('.pokemon-card').forEach(card => {
+                card.classList.remove('active');
+                if (parseInt(card.dataset.id) === pokemon.id) {
+                    card.classList.add('active');
+                }
+            });
+
+            // Create catch effect
+            createCatchEffect();
+
+            // Reset rotation
+            rotationY = 0;
+            rotationX = 0;
+        }
+
+        // Create catch effect
+        function createCatchEffect() {
+            const effect = document.createElement('div');
+            effect.className = 'catch-effect';
+            document.body.appendChild(effect);
+            setTimeout(() => effect.remove(), 800);
+
+            // Create sparkles
+            for (let i = 0; i < 12; i++) {
+                setTimeout(() => {
+                    const sparkle = document.createElement('div');
+                    sparkle.className = 'sparkle';
+                    sparkle.style.left = `${window.innerWidth / 2 + (Math.random() - 0.5) * 200}px`;
+                    sparkle.style.top = `${window.innerHeight / 2 + (Math.random() - 0.5) * 200}px`;
+                    document.body.appendChild(sparkle);
+                    setTimeout(() => sparkle.remove(), 1000);
+                }, i * 50);
+            }
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Mouse drag for 3D rotation
+            pokemon3D.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                lastMouseX = e.clientX;
+                lastMouseY = e.clientY;
+                autoRotate = false;
+                document.getElementById('btn-rotate').classList.remove('active');
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                
+                const deltaX = e.clientX - lastMouseX;
+                const deltaY = e.clientY - lastMouseY;
+                
+                rotationY += deltaX * 0.5;
+                rotationX = Math.max(-30, Math.min(30, rotationX + deltaY * 0.3));
+                
+                lastMouseX = e.clientX;
+                lastMouseY = e.clientY;
+            });
+
+            document.addEventListener('mouseup', () => {
+                isDragging = false;
+            });
+
+            // Touch events for mobile
+            pokemon3D.addEventListener('touchstart', (e) => {
+                isDragging = true;
+                lastMouseX = e.touches[0].clientX;
+                lastMouseY = e.touches[0].clientY;
+                autoRotate = false;
+                document.getElementById('btn-rotate').classList.remove('active');
+            });
+
+            document.addEventListener('touchmove', (e) => {
+                if (!isDragging) return;
+                
+                const deltaX = e.touches[0].clientX - lastMouseX;
+                const deltaY = e.touches[0].clientY - lastMouseY;
+                
+                rotationY += deltaX * 0.5;
+                rotationX = Math.max(-30, Math.min(30, rotationX + deltaY * 0.3));
+                
+                lastMouseX = e.touches[0].clientX;
+                lastMouseY = e.touches[0].clientY;
+            });
+
+            document.addEventListener('touchend', () => {
+                isDragging = false;
+            });
+
+            // Mouse wheel for zoom
+            sceneContainer.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                zoom = Math.max(0.5, Math.min(2, zoom - e.deltaY * 0.001));
+            });
+
+            // Button events
+            document.getElementById('btn-rotate').addEventListener('click', function() {
+                autoRotate = !autoRotate;
+                this.classList.toggle('active', autoRotate);
+            });
+
+            document.getElementById('btn-zoom-in').addEventListener('click', () => {
+                zoom = Math.min(2, zoom + 0.2);
+            });
+
+            document.getElementById('btn-zoom-out').addEventListener('click', () => {
+                zoom = Math.max(0.5, zoom - 0.2);
+            });
+
+            document.getElementById('btn-reset').addEventListener('click', () => {
+                rotationX = 0;
+                rotationY = 0;
+                zoom = 1;
+                autoRotate = true;
+                document.getElementById('btn-rotate').classList.add('active');
+            });
+
+            document.getElementById('btn-catch').addEventListener('click', () => {
+                createCatchEffect();
+            });
+
+            document.getElementById('btn-battle').addEventListener('click', function() {
+                battleMode = !battleMode;
+                this.classList.toggle('active', battleMode);
+                document.getElementById('container').classList.toggle('battle-mode', battleMode);
+            });
+        }
+
+        // Animation loop
+        function startAnimationLoop() {
+            function animate() {
+                if (autoRotate) {
+                    rotationY += 0.5;
+                }
+
+                // Apply 3D transform
+                pokemon3D.style.transform = `
+                    rotateX(${rotationX}deg) 
+                    rotateY(${rotationY}deg) 
+                    scale(${zoom})
+                `;
+
+                requestAnimationFrame(animate);
+            }
+            animate();
+        }
+
+        // Start the game
+        init();
+    </script>
+</body>
+</html>

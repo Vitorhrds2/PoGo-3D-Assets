@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokémon World - Game Launcher</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        /* Animated background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .pokeball-bg {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(180deg, 
+                rgba(255, 0, 0, 0.1) 0%, 
+                rgba(255, 0, 0, 0.1) 45%, 
+                rgba(30, 30, 30, 0.1) 45%, 
+                rgba(30, 30, 30, 0.1) 55%, 
+                rgba(255, 255, 255, 0.1) 55%, 
+                rgba(255, 255, 255, 0.1) 100%
+            );
+            animation: floatBall 20s infinite linear;
+        }
+
+        @keyframes floatBall {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.5; }
+            90% { opacity: 0.5; }
+            100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
+        }
+
+        /* Main container */
+        .launcher {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .logo-container {
+            margin-bottom: 40px;
+        }
+
+        .logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(180deg, #ffd700 0%, #ff8c00 50%, #ff6600 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: none;
+            filter: drop-shadow(0 4px 8px rgba(255, 165, 0, 0.3));
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            0% { filter: drop-shadow(0 4px 8px rgba(255, 165, 0, 0.3)); }
+            100% { filter: drop-shadow(0 4px 20px rgba(255, 165, 0, 0.6)); }
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 10px;
+            letter-spacing: 3px;
+        }
+
+        /* Game cards */
+        .game-cards {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .game-card {
+            width: 300px;
+            background: linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+            border-radius: 20px;
+            padding: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255,255,255,0.1);
+            text-decoration: none;
+            color: #fff;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            border-color: #ffd700;
+            box-shadow: 0 20px 40px rgba(255, 215, 0, 0.2);
+        }
+
+        .game-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .game-card:hover::before {
+            left: 100%;
+        }
+
+        .card-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .card-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #ffd700;
+        }
+
+        .card-description {
+            font-size: 0.95rem;
+            color: rgba(255,255,255,0.7);
+            line-height: 1.6;
+        }
+
+        .card-features {
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        .feature {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.8);
+        }
+
+        .feature-icon {
+            color: #4ade80;
+        }
+
+        .play-btn {
+            margin-top: 20px;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+            border: none;
+            border-radius: 30px;
+            color: #1a1a2e;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .game-card:hover .play-btn {
+            background: linear-gradient(135deg, #ffec8b 0%, #ffd700 100%);
+            transform: scale(1.05);
+        }
+
+        /* Pokedex card specific */
+        .pokedex-card {
+            background: linear-gradient(145deg, rgba(220, 10, 45, 0.2), rgba(150, 5, 30, 0.1));
+            border-color: rgba(220, 10, 45, 0.3);
+        }
+
+        .pokedex-card:hover {
+            border-color: #dc0a2d;
+            box-shadow: 0 20px 40px rgba(220, 10, 45, 0.3);
+        }
+
+        .pokedex-card .card-title {
+            color: #ff6b6b;
+        }
+
+        /* World card specific */
+        .world-card {
+            background: linear-gradient(145deg, rgba(34, 139, 34, 0.2), rgba(20, 80, 20, 0.1));
+            border-color: rgba(34, 139, 34, 0.3);
+        }
+
+        .world-card:hover {
+            border-color: #228B22;
+            box-shadow: 0 20px 40px rgba(34, 139, 34, 0.3);
+        }
+
+        .world-card .card-title {
+            color: #4ade80;
+        }
+
+        /* Footer */
+        .footer {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255,255,255,0.5);
+            font-size: 0.8rem;
+        }
+
+        .footer a {
+            color: #ffd700;
+            text-decoration: none;
+        }
+
+        /* Badge */
+        .new-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: linear-gradient(135deg, #ff6b6b, #ff0000);
+            color: #fff;
+            font-size: 0.7rem;
+            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 20px;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        /* Responsive */
+        @media (max-width: 700px) {
+            .game-cards {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .logo {
+                font-size: 2rem;
+            }
+
+            .game-card {
+                width: 90%;
+                max-width: 350px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated background -->
+    <div class="bg-animation" id="bg-animation"></div>
+
+    <!-- Main launcher -->
+    <div class="launcher">
+        <div class="logo-container">
+            <div class="logo">POKÉMON WORLD</div>
+            <div class="subtitle">KANTO ADVENTURE</div>
+        </div>
+
+        <div class="game-cards">
+            <!-- Open World Card -->
+            <a href="world.html" class="game-card world-card">
+                <span class="new-badge">NEW!</span>
+                <span class="card-icon">🌍</span>
+                <div class="card-title">Open World</div>
+                <div class="card-description">
+                    Explore the Kanto region, catch wild Pokémon, battle trainers, and become a Pokémon Master!
+                </div>
+                <div class="card-features">
+                    <div class="feature">
+                        <span class="feature-icon">✓</span>
+                        <span>Explore the world freely</span>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">✓</span>
+                        <span>Catch 151 Pokémon</span>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">✓</span>
+                        <span>Battle wild Pokémon</span>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">✓</span>
+                        <span>Build your team</span>
+                    </div>
+                </div>
+                <button class="play-btn">▶ PLAY NOW</button>
+            </a>
+
+            <!-- Pokedex Card -->
+            <a href="pokedex.html" class="game-card pokedex-card">
+                <span class="card-icon">📱</span>
+                <div class="card-title">Pokédex</div>
+                <div class="card-description">
+                    Browse the complete Gen 1 Pokédex with detailed stats, types, descriptions, and more!
+                </div>
+                <div class="card-features">
+                    <div class="feature">
+                        <span class="feature-icon">✓</span>
+                        <span>151 Pokémon entries</span>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">✓</span>
+                        <span>Animated sprites</span>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">✓</span>
+                        <span>Complete stats</span>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">✓</span>
+                        <span>Pokémon cries</span>
+                    </div>
+                </div>
+                <button class="play-btn">▶ OPEN POKÉDEX</button>
+            </a>
+        </div>
+    </div>
+
+    <div class="footer">
+        Assets from <a href="https://github.com/Vitorhrds2/PoGo-3D-Assets" target="_blank">PoGo-3D-Assets</a> | 
+        Data from <a href="https://pokeapi.co" target="_blank">PokéAPI</a>
+    </div>
+
+    <script>
+        // Create floating pokeballs in background
+        function createBackground() {
+            const bg = document.getElementById('bg-animation');
+            
+            for (let i = 0; i < 10; i++) {
+                const ball = document.createElement('div');
+                ball.className = 'pokeball-bg';
+                ball.style.left = Math.random() * 100 + '%';
+                ball.style.animationDelay = Math.random() * 20 + 's';
+                ball.style.width = (50 + Math.random() * 100) + 'px';
+                ball.style.height = ball.style.width;
+                bg.appendChild(ball);
+            }
+        }
+
+        createBackground();
+    </script>
+</body>
+</html>

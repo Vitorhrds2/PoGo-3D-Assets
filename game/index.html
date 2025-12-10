@@ -885,7 +885,8 @@
             ).join('');
 
             // Description
-            const entry = species.flavor_text_entries.find(e => e.language.name === 'en');
+            const entries = species.flavor_text_entries || [];
+            const entry = entries.find(e => e.language.name === 'en');
             pokemonDescription.textContent = entry ? entry.flavor_text.replace(/\f|\n/g, ' ') : 'No description available.';
 
             // Physical stats
@@ -925,7 +926,8 @@
             }).join('');
 
             // Store cry URL
-            cryBtn.dataset.cryUrl = pokemon.cries?.latest || pokemon.cries?.legacy || '';
+            const cries = pokemon.cries || {};
+            cryBtn.dataset.cryUrl = cries.latest || cries.legacy || '';
         }
 
         // Setup Event Listeners

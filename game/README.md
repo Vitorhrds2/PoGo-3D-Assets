@@ -1,81 +1,113 @@
-# 🎮 Pokédex 3D - Gen 1
+# 🎮 Pokémon World - Kanto Adventure
 
-Uma Pokédex interativa e moderna com visual realista de Pokémon da primeira geração!
+Um jogo completo de Pokémon para navegador com mundo aberto e Pokédex interativa!
 
-## 🚀 Como Usar
+## 🚀 Como Jogar
 
-Basta abrir o arquivo `index.html` no seu navegador! Nenhuma instalação necessária.
+Abra o arquivo `index.html` no navegador para acessar o launcher, ou acesse diretamente:
+- **`world.html`** - Jogo de Mundo Aberto
+- **`pokedex.html`** - Pokédex Interativa
 
-## 🎯 Funcionalidades
+## 🌍 Modo Mundo Aberto (NOVO!)
 
-### Design Moderno de Pokédex
-- Visual realista inspirado na Pokédex clássica
-- Interface dividida em dois painéis (como uma Pokédex real)
-- Efeitos de luz, sombras e animações 3D
-- Design responsivo para desktop e mobile
+Explore a região de Kanto livremente em um mundo 2D com:
 
-### Visualização de Pokémon
-- **Sprites animados** dos jogos Black/White quando disponíveis
-- **Artwork oficial** como fallback
-- **Efeito de rotação 3D** ao arrastar a imagem
-- **Animação de flutuação** suave
+### Exploração
+- Mapa grande com diferentes áreas (Pallet Town, Route 1, Viridian City, Viridian Forest)
+- Movimentação livre pelo mundo
+- Grama alta com encontros aleatórios
+- Pokémon selvagens visíveis no mapa
+- Minimapa para navegação
 
-### Informações Completas
-- Número e nome do Pokémon
-- Tipos com cores oficiais
-- Descrição da Pokédex
-- Altura e peso
-- Status base completos (HP, ATK, DEF, SP.A, SP.D, SPD)
+### Sistema de Batalha
+- Batalhas por turno estilo RPG clássico
+- 4 opções: Fight, Bag, Pokémon, Run
+- Sistema de HP e dano baseado em stats
+- Experiência e level up ao vencer
+- Captura de Pokémon com Pokébolas
+
+### Recursos do Jogo
+- Party de até 6 Pokémon
+- Pokédex que registra Pokémon encontrados
+- Sistema de save (LocalStorage)
+- Pokémon inicial aleatório (Bulbasaur, Charmander, Squirtle ou Pikachu)
+- Pokébolas para captura
+
+### Controles
+
+| Ação | Teclado | Mobile |
+|------|---------|--------|
+| Mover | WASD ou Setas | D-Pad virtual |
+| Interagir | A | Botão A |
+| Cancelar | B ou ESC | Botão B |
+| Menu | ESC | Botão Menu |
+
+## 📱 Pokédex
+
+Pokédex interativa com design clássico:
+
+- **151 Pokémon** da Gen 1
+- **Sprites animados** quando disponíveis
+- **Stats completos** (HP, ATK, DEF, SP.A, SP.D, SPD)
+- **Tipos** com cores oficiais
+- **Descrições** da Pokédex
+- **Altura e peso**
 - **Som do grito** do Pokémon
-
-### Navegação
-- **Grid visual** com todos os 151 Pokémon da Gen 1
-- Botões de navegação ◀ ▶
-- **D-Pad** estilo Game Boy
-- Suporte a **teclado** (setas)
 
 ## 🛠️ Tecnologias
 
-- **HTML5/CSS3**: Interface moderna com efeitos 3D
-- **JavaScript ES6+**: Lógica assíncrona e interatividade
-- **PokéAPI**: Dados oficiais de Pokémon (sprites, stats, descrições)
-- **Google Fonts**: Tipografia futurista (Orbitron, Rajdhani)
-
-## 📱 Controles
-
-| Ação | Desktop | Mobile |
-|------|---------|--------|
-| Navegar | ← → ↑ ↓ ou botões | Toque nos botões |
-| Rotacionar 3D | Arrastar imagem | Arrastar imagem |
-| Selecionar | Click no grid | Toque no grid |
-| Ouvir grito | Botão PLAY CRY | Botão PLAY CRY |
-
-## 🎨 Características Visuais
-
-- Efeito de luz pulsante (LED azul)
-- LEDs indicadores (vermelho, amarelo, verde)
-- Tela com gradiente estilo LCD
-- Barras de status coloridas
-- Badges de tipo com gradientes
-- Efeitos de hover e transições suaves
-- Animação de carregamento (Pokébola girando)
+- **HTML5 Canvas/CSS3**: Renderização do mundo e UI
+- **JavaScript ES6+**: Engine do jogo e lógica
+- **PokéAPI**: Dados e sprites oficiais
+- **LocalStorage**: Sistema de save
 
 ## 📂 Estrutura
 
 ```
 game/
-├── index.html      # Pokédex completa (arquivo único)
+├── index.html      # Launcher principal
+├── world.html      # Jogo de mundo aberto
+├── pokedex.html    # Pokédex interativa
 └── README.md       # Este arquivo
 ```
 
+## 🎮 Features do Mundo Aberto
+
+### Áreas
+- 🏠 **Pallet Town** - Cidade inicial
+- 🛤️ **Route 1** - Primeira rota com Pokémon selvagens
+- 🏙️ **Viridian City** - Cidade com Pokémon Center e Mart
+- 🌲 **Viridian Forest** - Floresta com Pokémon tipo Bug
+
+### Pokémon Selvagens
+Encontre Pokémon como:
+- Pidgey, Rattata, Spearow
+- Ekans, Sandshrew, Nidoran
+- Zubat, Oddish, Paras
+- E muitos outros!
+
+### Itens
+- 💰 Pokéyen para compras
+- 🔴 Pokébolas para captura
+
 ## 🔗 API
 
-Este projeto utiliza a [PokéAPI](https://pokeapi.co/) para obter:
-- Sprites e artwork oficiais
+Utiliza a [PokéAPI](https://pokeapi.co/) para:
+- Sprites oficiais (front e back)
 - Dados de tipos e estatísticas
-- Descrições da Pokédex
-- Sons dos Pokémon (cries)
+- Informações de moves
+- Base stats para cálculos
 
-## 🎮 Aproveite!
+## 📊 Assets do Repositório
 
-Explore todos os 151 Pokémon da primeira geração! ⚡
+O repositório contém assets 3D originais:
+- **333 modelos FBX** de Pokémon
+- **Texturas PNG** (Body, Eye, Mouth)
+- **Arquivos C4D** para Cinema 4D
+- **Efeitos** (Incense, etc.)
+
+Estes assets podem ser usados em engines 3D como Unity ou Blender.
+
+## 🎮 Aproveite a aventura!
+
+Capture todos os 151 Pokémon e torne-se um Mestre Pokémon! ⚡
